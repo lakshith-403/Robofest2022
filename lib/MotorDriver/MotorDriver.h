@@ -9,14 +9,18 @@
 
 class MotorDriver {
 public:
+    void init(int *leftPins, int *rightPins);
 
-    void init(int* leftPins, int* rightPins);
     void forward(int speed);
+
     void backward(int speed);
+
     void turnLeft(int speed);
+
     void turnRight(int speed);
 
     void forward(int leftSpeed, int rightSpeed);
+
 private:
     int leftPWM;
     int rightPWM;
