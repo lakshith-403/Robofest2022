@@ -50,13 +50,15 @@ void SensorPanel::updatePattern() { //todo update hyper params
         rightSum += (i + 1) * 2 * SensorPanel::panelReading[i + SensorPanel::SensorCount / 2];
     }
 
-    if (leftSum >= THRESHOLD && rightSum >= THRESHOLD) {
+    if (leftSum == 0 && rightSum == 0) {
+        SensorPanel::pattern = 0;
+    } else if (leftSum >= THRESHOLD && rightSum >= THRESHOLD) {
         SensorPanel::pattern = 'T';
     } else if (leftSum >= THRESHOLD) {
         SensorPanel::pattern = 'L';
     } else if (rightSum >= THRESHOLD) {
         SensorPanel::pattern = 'R';
     } else {
-        SensorPanel::pattern = 0;
+        SensorPanel::pattern = 1;
     }
 }
