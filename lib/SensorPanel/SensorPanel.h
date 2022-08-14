@@ -12,6 +12,7 @@ class SensorPanel {
 public:
     char pattern = 0;
     uint16_t position = 0;
+    int error = 0;
 
     SensorPanel(uint8_t *sensorPins);
 
