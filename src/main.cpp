@@ -19,6 +19,9 @@ const int forwardSpeed = 100;
 
 const int epsilon = 100;
 
+const String mappings [6][6] = { { "LBL", "LBS", "RBL" ,"SBL" ,"SBS", "LBR"}, { "S", "R", "B","R", "B", "B" } };
+String mazeShort(String maze);
+
 inline void waitTillButton() {
     int reading = digitalRead(switchPin);
     while (digitalRead(switchPin) == reading) {}
@@ -89,4 +92,14 @@ void setup() {
             }
         }
     }
+}
+String mazeShort(String maze){                          // sumthin like "SSBLLBLLLBLBLBLS"
+  while(maze.indexOf("B")!=-1){
+    for(int i=0;i<6;i++){
+      while(maze.indexOf(mappings[0][i])!=-1){
+        maze.replace(mappings[0][i],mappings[1][i]);
+      }
+    }
+  }
+  return maze;
 }
