@@ -5,6 +5,8 @@
 #include "MotorDriver.h"
 #include <Arduino.h>
 
+const int baseSpeed = 150;
+
 void MotorDriver::init(int* leftPins, int* rightPins) {
     leftPWM = leftPins[0];
     leftDirection[0] = leftPins[1];
@@ -70,4 +72,11 @@ void MotorDriver::forward(int leftSpeed, int rightSpeed) {
 
     analogWrite(leftPWM, leftSpeed);
     analogWrite(rightPWM, rightSpeed);
+}
+
+void MotorDriver::applyPID(int correction) {
+    int leftSpeed = baseSpeed + correction;
+    int rightSpeed = baseSpeed - correction;
+
+    forward(leftSpeed, rightSpeed);
 }

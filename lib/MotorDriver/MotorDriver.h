@@ -21,6 +21,8 @@ public:
 
     void forward(int leftSpeed, int rightSpeed);
 
+    void applyPID(int correction);
+
 private:
     int leftPWM;
     int rightPWM;
