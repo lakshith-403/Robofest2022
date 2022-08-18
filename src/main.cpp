@@ -68,10 +68,7 @@ void setup() {
 
             switch (pattern) {
                 case 'L':
-                    if (pattern == 'L') {
-                        driver.turnLeft(100);
-                    } else if (pattern ==)
-                        driver.turnLeft(turnSpeed);
+                    driver.turnLeft(100);
                     waitTillMiddle();
                     break;
                 case 'R':
