@@ -13,6 +13,7 @@ public:
     char pattern = 0;
     uint16_t position = 0;
     int error = 0;
+    uint16_t panelReading[16];
 
     SensorPanel(uint8_t *sensorPins);
 
@@ -23,7 +24,6 @@ public:
 private:
     QTRSensors qtr;
     const uint8_t SensorCount = 16;
-    uint16_t panelReading[16];
 
     uint16_t readLine(uint16_t *sensorValues);
 
