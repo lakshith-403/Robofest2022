@@ -10,7 +10,7 @@ inline uint16_t abs(uint16_t a) {
 
 SensorPanel::SensorPanel(uint8_t *sensorPins) {
     SensorPanel::qtr.setTypeRC();
-    SensorPanel::qtr.setSensorPins(sensorPins, SensorCount);
+    SensorPanel::qtr.setSensorPins(sensorPins, 16);
 }
 
 bool SensorPanel::calibrate(int seconds) {
@@ -21,13 +21,13 @@ bool SensorPanel::calibrate(int seconds) {
 }
 
 uint16_t SensorPanel::readLine(uint16_t *sensorValues) {
-    return SensorPanel::qtr.readLineWhite(sensorValues);
+    return SensorPanel::qtr.readLineBlack(sensorValues);
 }
 
 void SensorPanel::read() {
-    position = SensorPanel::readLine(panelReading);
+    SensorPanel::position = SensorPanel::readLine(panelReading);
 
-    error = (int)position - SensorCount / 2;
+    error = (int)position - 8000;
 
     for (int i = 0; i < SensorPanel::SensorCount; i++) {
         panelReading[i] = panelReading[i] > 700 ? 1 : 0;
