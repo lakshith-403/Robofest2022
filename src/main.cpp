@@ -3,16 +3,17 @@
 #include "../lib/PID/PID.h"
 #include "../lib/SensorPanel/SensorPanel.h"
 
-SensorPanel qtr(const_cast<uint8_t *>((const uint8_t[])
-        {37, 39, 41, 43, 45, 47, 49, 51,
-         35, 33, 31, 29, 27, 25, 23, 22}));
+SensorPanel qtr(const_cast<uint8_t *>((const uint8_t[]) {24, 22, 23, 25, 27, 29, 31,
+                                                         33, 35, 37, 39, 41, 43, 45, 47, 49}));
 
 MotorDriver driver;
 
-const int leftPins[] = {0, 1, 2};
-const int rightPins[] = {0, 1, 2};
+const int leftPins[] = {6, 9, 8};
+const int rightPins[] = {7, 11, 10};
 
-const int switchPin = 0;
+const int lightPins[] = {19, 50, 48};
+
+const int switchPin = 18;
 
 const int turnSpeed = 100;
 const int forwardSpeed = 100;
@@ -32,22 +33,31 @@ inline void waitTillMiddle() {
     }
 }
 
-void setup() {
+inline void light(int freq[]) {
+    for (int i = 0; i < 3; i++) {
+        analogWrite(lightPins[i], freq[i]);
+    }
+}
+
+void BotSetup() {
     pinMode(switchPin, OUTPUT);
+
+    for (int lightPin: lightPins) {
+        pinMode(lightPin, OUTPUT);
+    }
 
     Serial.begin(9600);
     driver.init(const_cast<int *>(leftPins), const_cast<int *>(rightPins));
 
+    Serial.println("Calibrating");
+    qtr.calibrate(5);
+    int lightFreq[] = {0, 100, 200};
+    light(lightFreq);
+
     waitTillButton();
-    qtr.calibrate(10);
 }
 
-[[noreturn]] void loop() {
-    waitTillButton();
-
-    driver.forward(150);
-    delay(300);
-
+[[noreturn]] void BotLoop() {
     while (true) {
         qtr.read();
 
@@ -87,4 +97,14 @@ void setup() {
             }
         }
     }
+}
+
+void setup() {
+    BotSetup();
+    driver.forward(150);
+    delay(500);
+}
+
+void loop() {
+    BotLoop();
 }
