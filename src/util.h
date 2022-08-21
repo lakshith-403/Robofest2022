@@ -6,6 +6,8 @@
 #define ROBOFEST2022_UTIL_H
 
 #include "Arduino.h"
+#include "SensorPanel.h"
+#include "PID.h"
 
 #endif //ROBOFEST2022_UTIL_H
 
@@ -21,4 +23,18 @@ String mazeShort(String maze) {
         }
     }
     return maze;
+}
+
+void printReadings(const SensorPanel& qtr) {
+    for (unsigned int i : qtr.panelReading) {
+        Serial.print(i);
+        Serial.print('\t');
+    }
+    Serial.println(qtr.position);
+    Serial.print(qtr.error);
+    Serial.print('\t');
+    int correction = pid(qtr.error);
+    Serial.println(correction);
+
+    delay(250);
 }
