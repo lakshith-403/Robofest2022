@@ -7,9 +7,9 @@
 
 #endif //ROBOFEST2022_PID_H
 
-const double P = 0;
+const double P = 0.01275;
 const double I = 0;
-const double D = 0;
+const double D = 0.03;
 
 int totalError = 0;
 int prevError = 0;

@@ -5,7 +5,8 @@
 #include "MotorDriver.h"
 #include <Arduino.h>
 
-const int baseSpeed = 150;
+const int baseSpeed = 80;
+const int maxSpeed = 150;
 
 void MotorDriver::init(int* leftPins, int* rightPins) {
     leftPWM = leftPins[0];
@@ -77,6 +78,22 @@ void MotorDriver::forward(int leftSpeed, int rightSpeed) {
 void MotorDriver::applyPID(int correction) {
     int leftSpeed = baseSpeed + correction;
     int rightSpeed = baseSpeed - correction;
+
+    if (leftSpeed < 0) {
+        leftSpeed = 0;
+    }
+
+    if (rightSpeed < 0) {
+        rightSpeed = 0;
+    }
+
+    if (leftSpeed >= maxSpeed) {
+        leftSpeed = maxSpeed;
+    }
+
+    if (rightSpeed >= maxSpeed) {
+        rightSpeed = maxSpeed;
+    }
 
     forward(leftSpeed, rightSpeed);
 }
