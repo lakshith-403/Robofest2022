@@ -35,6 +35,17 @@ void MotorDriver::forward(int speed) {
     analogWrite(rightPWM, speed);
 }
 
+void MotorDriver::stop() {
+    digitalWrite(leftDirection[0], HIGH);
+    digitalWrite(leftDirection[1], HIGH);
+    digitalWrite(rightDirection[0], HIGH);
+    digitalWrite(rightDirection[1], HIGH);
+
+    analogWrite(leftPWM, 255);
+    analogWrite(rightPWM, 255);
+    delay(300);
+}
+
 void MotorDriver::backward(int speed) {
     digitalWrite(leftDirection[0], LOW);
     digitalWrite(leftDirection[1], HIGH);
