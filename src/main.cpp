@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include "../lib/MotorDriver/MotorDriver.h"
-#include "../lib/PID/PID.h"
-#include "../lib/SensorPanel/SensorPanel.h"
+#include "util.h"
 
 SensorPanel qtr(const_cast<uint8_t *>((const uint8_t[]) {24, 22, 23, 25, 27, 29, 31,
                                                          33, 35, 37, 39, 41, 43, 45, 47, 49}));
@@ -18,7 +17,13 @@ const int switchPin = 18;
 const int turnSpeed = 100;
 const int forwardSpeed = 100;
 
-const int epsilon = 100;
+inline void turnDelay() {
+    delay(200);
+}
+
+inline void forwardDelay() {
+    delay(150);
+}
 
 inline void waitTillButton() {
     int reading = digitalRead(switchPin);
@@ -26,11 +31,11 @@ inline void waitTillButton() {
 }
 
 inline void waitTillMiddle() {
-    delay(500);
     qtr.read();
-    while (abs(qtr.error) > epsilon) {
+    while (!qtr.isMiddle) {
         qtr.read();
     }
+    driver.stop();
 }
 
 inline void light(int freq[]) {
@@ -50,11 +55,9 @@ void BotSetup() {
     driver.init(const_cast<int *>(leftPins), const_cast<int *>(rightPins));
 
     Serial.println("Calibrating");
-    qtr.calibrate(5);
+    qtr.calibrate(10);
     int lightFreq[] = {0, 100, 200};
     light(lightFreq);
-
-    waitTillButton();
 }
 
 [[noreturn]] void BotLoop() {
@@ -62,49 +65,66 @@ void BotSetup() {
         qtr.read();
 
         if (qtr.pattern == 1) { //pid
+
+            int lightFreq[] = {0, 0, 0};
+            light(lightFreq);
+
             int correction = pid(qtr.error);
             driver.applyPID(correction);
         } else {
+
+            int lightFreq[] = {0, 100, 200};
+            light(lightFreq);
+
+            driver.stop();
             char pattern = qtr.pattern;
 
-            driver.forward(150);
-            delay(200);
+            driver.forward(forwardSpeed);
+            forwardDelay();
 
             qtr.read();
             char newPattern = qtr.pattern;
 
             switch (pattern) {
                 case 'L':
-                    driver.turnLeft(100);
+                    driver.turnLeft(turnSpeed);
+                    turnDelay();
                     waitTillMiddle();
                     break;
                 case 'R':
                     if (newPattern == 1) {
                         driver.forward(forwardSpeed);
-                        delay(200);
                     } else {
                         driver.turnRight(turnSpeed);
+                        turnDelay();
                         waitTillMiddle();
                     }
                     break;
                 case 'T':
                     driver.turnLeft(turnSpeed);
+                    turnDelay();
                     waitTillMiddle();
                 default:
                     driver.turnRight(turnSpeed);
+                    turnDelay();
                     waitTillMiddle();
                     break;
             }
+            driver.stop();
         }
     }
 }
 
 void setup() {
     BotSetup();
-    driver.forward(150);
-    delay(500);
 }
 
 void loop() {
-    BotLoop();
+    qtr.read();
+    int correction = pid(qtr.error);
+    driver.applyPID(correction);
+    if (qtr.pattern!=1) {
+        driver.stop();
+        waitTillButton();
+    }
 }

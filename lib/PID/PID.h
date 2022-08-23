@@ -7,7 +7,7 @@
 
 #endif //ROBOFEST2022_PID_H
 
-const double P = 0.01275;
+const double P = 0.01575;
 const double I = 0;
 const double D = 0.03;
 
