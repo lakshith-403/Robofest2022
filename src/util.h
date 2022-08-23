@@ -30,7 +30,7 @@ void printReadings(const SensorPanel& qtr) {
         Serial.print(i);
         Serial.print('\t');
     }
-    Serial.println(qtr.position);
+    Serial.println(qtr.pattern);
     Serial.print(qtr.error);
     Serial.print('\t');
     int correction = pid(qtr.error);
