@@ -13,6 +13,8 @@ public:
 
     void forward(int speed);
 
+    void stop();
+
     void backward(int speed);
 
     void turnLeft(int speed);
