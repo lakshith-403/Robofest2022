@@ -14,15 +14,15 @@ const int lightPins[] = {19, 50, 48};
 
 const int switchPin = 18;
 
-const int turnSpeed = 100;
-const int forwardSpeed = 100;
+const int turnSpeed = 65;
+const int forwardSpeed = 80;
 
 inline void turnDelay() {
-    delay(200);
+    delay(300);
 }
 
 inline void forwardDelay() {
-    delay(150);
+    delay(100);
 }
 
 inline void waitTillButton() {
@@ -75,12 +75,11 @@ void BotSetup() {
 
             int lightFreq[] = {0, 100, 200};
             light(lightFreq);
-
-            driver.stop();
             char pattern = qtr.pattern;
 
             driver.forward(forwardSpeed);
             forwardDelay();
+            driver.stop();
 
             qtr.read();
             char newPattern = qtr.pattern;
@@ -120,11 +119,5 @@ void setup() {
 }
 
 void loop() {
-    qtr.read();
-    int correction = pid(qtr.error);
-    driver.applyPID(correction);
-    if (qtr.pattern!=1) {
-        driver.stop();
-        waitTillButton();
-    }
+    BotLoop();
 }
