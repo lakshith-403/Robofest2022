@@ -55,10 +55,16 @@ void SensorPanel::updatePattern() { //todo update hyper params
     }
 
     SensorPanel::isMiddle = false;
-
-    for (int i = 6; i <= 9; i++) {
+    for (int i = 7; i <= 8; i++) {
         if (SensorPanel::panelReading[i] == 1) {
             SensorPanel::isMiddle = true;
+        }
+    }
+
+    SensorPanel::isEnd = false;
+    for (int i = 0; i <= 2; i++) {
+        if (SensorPanel::panelReading[i] == 1 || SensorPanel::panelReading[15 - i] == 1) {
+            SensorPanel::isEnd = true;
         }
     }
 

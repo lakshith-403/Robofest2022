@@ -11,6 +11,11 @@
 
 #endif //ROBOFEST2022_UTIL_H
 
+const int  redPin =19;
+const int  bluePin =50;
+const int  greenPin =48;
+
+
 const String mappings[2][6] = {{"LBL", "LBS", "RBL", "SBL", "SBS", "LBR"},
                                {"S",   "R",   "B",   "R",   "B",   "B"}};
 
@@ -37,4 +42,29 @@ void printReadings(const SensorPanel& qtr) {
     Serial.println(correction);
 
     delay(250);
+}
+
+void showLight(char color){
+    switch (color) {
+        case 'R':
+            digitalWrite(redPin,1);
+            digitalWrite(greenPin,0);
+            digitalWrite(bluePin,0);
+            break;
+        case 'G':
+            digitalWrite(redPin,0);
+            digitalWrite(greenPin,1);
+            digitalWrite(bluePin,0);
+            break;
+        case 'B':
+            digitalWrite(redPin,0);
+            digitalWrite(greenPin,0);
+            digitalWrite(bluePin,1);
+            break;
+        default:
+            digitalWrite(redPin,0);
+            digitalWrite(greenPin,0);
+            digitalWrite(bluePin,0);
+            break;
+    }
 }

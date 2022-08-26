@@ -13,16 +13,19 @@ const int rightPins[] = {7, 11, 10};
 const int lightPins[] = {19, 50, 48};
 
 const int switchPin = 18;
+const int buzzerPin = 12;
 
-const int turnSpeed = 65;
+const int turnSpeed = 80;
 const int forwardSpeed = 80;
+
+const int TURN_DELAY = 150;
 
 inline void turnDelay() {
     delay(300);
 }
 
 inline void forwardDelay() {
-    delay(100);
+    delay(150);
 }
 
 inline void waitTillButton() {
@@ -36,6 +39,10 @@ inline void waitTillMiddle() {
         qtr.read();
     }
     driver.stop();
+}
+
+inline void beepBeep() {
+    digitalWrite(buzzerPin, HIGH);
 }
 
 inline void light(int freq[]) {
@@ -65,19 +72,27 @@ void BotSetup() {
         qtr.read();
 
         if (qtr.pattern == 1) { //pid
-
-            int lightFreq[] = {0, 0, 0};
-            light(lightFreq);
+            showLight('a');
 
             int correction = pid(qtr.error);
             driver.applyPID(correction);
         } else {
-
-            int lightFreq[] = {0, 100, 200};
-            light(lightFreq);
             char pattern = qtr.pattern;
 
             driver.forward(forwardSpeed);
+
+            bool L = pattern == 'L';
+            bool R = pattern == 'R';
+            for (int i = 0; i < TURN_DELAY; i++) {
+                char tempPattern = qtr.pattern;
+                L = L || tempPattern == 'L';
+                R = R || tempPattern == 'R';
+                delay(1);
+            }
+            if (L && R) {
+                pattern = 'T';
+            }
+
             forwardDelay();
             driver.stop();
 
@@ -86,11 +101,14 @@ void BotSetup() {
 
             switch (pattern) {
                 case 'L':
+                    showLight('R');
                     driver.turnLeft(turnSpeed);
                     turnDelay();
                     waitTillMiddle();
                     break;
+
                 case 'R':
+                    showLight('G');
                     if (newPattern == 1) {
                         driver.forward(forwardSpeed);
                     } else {
@@ -99,10 +117,14 @@ void BotSetup() {
                         waitTillMiddle();
                     }
                     break;
+
                 case 'T':
+                    showLight('B');
                     driver.turnLeft(turnSpeed);
                     turnDelay();
                     waitTillMiddle();
+                    break;
+
                 default:
                     driver.turnRight(turnSpeed);
                     turnDelay();

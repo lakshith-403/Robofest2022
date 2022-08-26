@@ -16,6 +16,7 @@ public:
     uint16_t panelReading[16];
     uint16_t rawReadings[16];
     bool isMiddle;
+    bool isEnd;
 
     SensorPanel(uint8_t *sensorPins);
 
