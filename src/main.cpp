@@ -16,9 +16,9 @@ const int switchPin = 18;
 const int buzzerPin = 12;
 
 const int turnSpeed = 80;
-const int forwardSpeed = 80;
+const int forwardSpeed = 60;
 
-const int TURN_DELAY = 150;
+const int FORWARD_DELAY = 150;
 
 inline void turnDelay() {
     delay(300);
@@ -78,22 +78,29 @@ void BotSetup() {
             driver.applyPID(correction);
         } else {
             char pattern = qtr.pattern;
-
+            bool left = pattern == 'L';
+            bool right = pattern == 'R';
+            bool t = pattern == 'T';
             driver.forward(forwardSpeed);
-
-            bool L = pattern == 'L';
-            bool R = pattern == 'R';
-            for (int i = 0; i < TURN_DELAY; i++) {
-                char tempPattern = qtr.pattern;
-                L = L || tempPattern == 'L';
-                R = R || tempPattern == 'R';
-                delay(1);
+            for (int i = 0; i < 70; i++) {
+                qtr.read();
+                if (qtr.pattern == 'L') {
+                    left = true;
+                } else if (qtr.pattern == 'R') {
+                    right = true;
+                } else if (qtr.pattern == 'T') {
+                    t = true;
+                }
             }
-            if (L && R) {
+            if (t || (left && right)) {
                 pattern = 'T';
+            } else if (left) {
+                pattern = 'L';
+            } else if (right) {
+                pattern = 'R';
+            } else {
+                pattern = 0;
             }
-
-            forwardDelay();
             driver.stop();
 
             qtr.read();

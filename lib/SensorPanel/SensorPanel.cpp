@@ -17,9 +17,10 @@ bool SensorPanel::calibrate(int seconds) {
 //    for (int i = 0; i < seconds * 40; i++) {
 //        SensorPanel::qtr.calibrate();
 //    }
-    uint16_t maxSensorValues[] =  {2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500};
+    uint16_t maxSensorValues[] = {2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500,
+                                  2500, 2500};
     uint16_t minSensorValues[] = {280, 280, 188, 276, 188, 276, 192, 276, 276, 280, 184, 184, 184, 92, 92, 92};
-    qtr.virtualCalibrate(maxSensorValues,minSensorValues);
+    qtr.virtualCalibrate(maxSensorValues, minSensorValues);
     return true;
 }
 
@@ -40,20 +41,7 @@ void SensorPanel::read() {
     SensorPanel::updatePattern();
 }
 
-void SensorPanel::updatePattern() { //todo update hyper params
-    const uint16_t THRESHOLD = 21;
-
-    uint16_t leftSum = 0;
-    uint16_t rightSum = 0;
-
-    for (int i = 0; i < SensorPanel::SensorCount / 2; i++) {
-        leftSum += ((SensorCount / 2) - i) * 1 * SensorPanel::panelReading[i];
-    }
-
-    for (int i = 0; i < SensorPanel::SensorCount / 2; i++) {
-        rightSum += (i + 1) * 1 * SensorPanel::panelReading[i + SensorPanel::SensorCount / 2];
-    }
-
+void SensorPanel::updatePattern() {
     SensorPanel::isMiddle = false;
     for (int i = 7; i <= 8; i++) {
         if (SensorPanel::panelReading[i] == 1) {
@@ -61,20 +49,34 @@ void SensorPanel::updatePattern() { //todo update hyper params
         }
     }
 
+    int sensorCount = 0;
+
+    for (int i = 0; i < 16; i++) {
+        sensorCount += panelReading[i];
+    }
+
     SensorPanel::isEnd = false;
-    for (int i = 0; i <= 2; i++) {
+    left = false;
+    right = false;
+    for (int i = 0; i < 2; i++) {
         if (SensorPanel::panelReading[i] == 1 || SensorPanel::panelReading[15 - i] == 1) {
             SensorPanel::isEnd = true;
         }
+        if (SensorPanel::panelReading[i] == 1) {
+            left = true;
+        }
+        if (SensorPanel::panelReading[15 - i] == 1) {
+            right = true;
+        }
     }
 
-    if (leftSum == 0 && rightSum == 0) {
+    if (sensorCount == 0) {
         SensorPanel::pattern = 0;
-    } else if (leftSum >= THRESHOLD && rightSum >= THRESHOLD && SensorPanel::isMiddle) {
+    } else if (left && right && SensorPanel::isMiddle) {
         SensorPanel::pattern = 'T';
-    } else if (leftSum >= THRESHOLD && SensorPanel::isMiddle) {
+    } else if (left && SensorPanel::isMiddle) {
         SensorPanel::pattern = 'L';
-    } else if (rightSum >= THRESHOLD && SensorPanel::isMiddle) {
+    } else if (right && SensorPanel::isMiddle) {
         SensorPanel::pattern = 'R';
     } else {
         SensorPanel::pattern = 1;
