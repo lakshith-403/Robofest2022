@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "../lib/MotorDriver/MotorDriver.h"
+#include "../lib/Gyro/Gyro.h"
 #include "util.h"
 
 SensorPanel qtr(const_cast<uint8_t *>((const uint8_t[]) {24, 22, 23, 25, 27, 29, 31,
@@ -18,8 +19,6 @@ const int buzzerPin = 12;
 const int turnSpeed = 80;
 const int forwardSpeed = 60;
 
-const int FORWARD_DELAY = 150;
-
 inline void turnDelay() {
     delay(300);
 }
@@ -33,22 +32,14 @@ inline void waitTillButton() {
     while (digitalRead(switchPin) == reading) {}
 }
 
-inline void waitTillMiddle() {
-    qtr.read();
-    while (!qtr.isMiddle) {
-        qtr.read();
+inline void waitTill90() {
+    double a = getAngle();
+    double b = a;
+
+    while (abs(a - b) <= 120) {
+        b = getAngle();
     }
     driver.stop();
-}
-
-inline void beepBeep() {
-    digitalWrite(buzzerPin, HIGH);
-}
-
-inline void light(int freq[]) {
-    for (int i = 0; i < 3; i++) {
-        analogWrite(lightPins[i], freq[i]);
-    }
 }
 
 void BotSetup() {
@@ -63,8 +54,9 @@ void BotSetup() {
 
     Serial.println("Calibrating");
     qtr.calibrate(10);
-    int lightFreq[] = {0, 100, 200};
-    light(lightFreq);
+    showLight('R');
+    setupGyro();
+    showLight('B');
 }
 
 [[noreturn]] void BotLoop() {
@@ -110,8 +102,7 @@ void BotSetup() {
                 case 'L':
                     showLight('R');
                     driver.turnLeft(turnSpeed);
-                    turnDelay();
-                    waitTillMiddle();
+                    waitTill90();
                     break;
 
                 case 'R':
@@ -120,22 +111,23 @@ void BotSetup() {
                         driver.forward(forwardSpeed);
                     } else {
                         driver.turnRight(turnSpeed);
-                        turnDelay();
-                        waitTillMiddle();
+                        waitTill90();
                     }
                     break;
 
                 case 'T':
                     showLight('B');
                     driver.turnLeft(turnSpeed);
-                    turnDelay();
-                    waitTillMiddle();
+                    waitTill90();
                     break;
 
                 default:
-                    driver.turnRight(turnSpeed);
-                    turnDelay();
-                    waitTillMiddle();
+                    showLight('B');
+                    driver.turnLeft(turnSpeed);
+                    waitTill90();
+                    driver.stop();
+                    driver.turnLeft(turnSpeed);
+                    waitTill90();
                     break;
             }
             driver.stop();
