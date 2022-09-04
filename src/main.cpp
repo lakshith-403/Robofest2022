@@ -42,6 +42,16 @@ inline void waitTill90() {
     driver.stop();
 }
 
+inline void waitTill180() {
+    double a = getAngle();
+    double b = a;
+
+    while (abs(a - b) <= 240) {
+        b = getAngle();
+    }
+    driver.stop();
+}
+
 void BotSetup() {
     pinMode(switchPin, OUTPUT);
 
@@ -124,10 +134,7 @@ void BotSetup() {
                 default:
                     showLight('B');
                     driver.turnLeft(turnSpeed);
-                    waitTill90();
-                    driver.stop();
-                    driver.turnLeft(turnSpeed);
-                    waitTill90();
+                    waitTill180();
                     break;
             }
             driver.stop();
