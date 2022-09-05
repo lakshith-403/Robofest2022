@@ -55,13 +55,9 @@ void SensorPanel::updatePattern() {
         sensorCount += panelReading[i];
     }
 
-    SensorPanel::isEnd = false;
     left = false;
     right = false;
     for (int i = 0; i < 2; i++) {
-        if (SensorPanel::panelReading[i] == 1 || SensorPanel::panelReading[15 - i] == 1) {
-            SensorPanel::isEnd = true;
-        }
         if (SensorPanel::panelReading[i] == 1) {
             left = true;
         }
@@ -81,4 +77,14 @@ void SensorPanel::updatePattern() {
     } else {
         SensorPanel::pattern = 1;
     }
+
+    isEnd = true;
+    for (int i = 0; i < 3; i++) {
+        isEnd &= (panelReading[i] == 1) && (panelReading[15 - i] == 1);
+    }
+    int midWhiteCount = 0;
+    for (int i = 5; i <= 10; i++) {
+        midWhiteCount += panelReading[i] == 0 ? 1 : 0;
+    }
+    isEnd &= (midWhiteCount >= 1);
 }
