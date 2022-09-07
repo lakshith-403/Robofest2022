@@ -19,6 +19,10 @@ const int buzzerPin = 12;
 const int turnSpeed = 80;
 const int forwardSpeed = 60;
 
+String path = "";
+bool secondRun = false;
+int pathIndex = 0;
+
 inline void turnDelay() {
     delay(300);
 }
@@ -67,9 +71,11 @@ void BotSetup() {
     showLight('R');
     setupGyro();
     showLight('B');
+    driver.forward(80);
+    delay(500);
 }
 
-[[noreturn]] void BotLoop() {
+void BotLoop() {
     while (true) {
         qtr.read();
 
@@ -108,34 +114,72 @@ void BotSetup() {
             qtr.read();
             char newPattern = qtr.pattern;
 
-            switch (pattern) {
-                case 'L':
-                    showLight('R');
-                    driver.turnLeft(turnSpeed);
-                    waitTill90();
-                    break;
+            if (qtr.isEnd) {
+                driver.stop();
+                showLight('R');
+                return;
+            }
 
-                case 'R':
-                    showLight('G');
-                    if (newPattern == 1) {
-                        driver.forward(forwardSpeed);
-                    } else {
+            if (secondRun) {
+                char turn = path[pathIndex++];
+                switch (turn) {
+                    case 'L':
+                        showLight('R');
+                        driver.turnLeft(turnSpeed);
+                        waitTill90();
+                        break;
+
+                    case 'R':
+                        showLight('G');
                         driver.turnRight(turnSpeed);
                         waitTill90();
-                    }
-                    break;
+                        break;
 
-                case 'T':
-                    showLight('B');
-                    driver.turnLeft(turnSpeed);
-                    waitTill90();
-                    break;
+                    case 'S':
+                        showLight('B');
+                        break;
 
-                default:
-                    showLight('B');
-                    driver.turnLeft(turnSpeed);
-                    waitTill180();
-                    break;
+                    default:
+                        showLight('B');
+                        driver.turnLeft(turnSpeed);
+                        waitTill180();
+                        break;
+                }
+            } else {
+                switch (pattern) {
+                    case 'L':
+                        path += 'L';
+                        showLight('R');
+                        driver.turnLeft(turnSpeed);
+                        waitTill90();
+                        break;
+
+                    case 'R':
+                        showLight('G');
+                        if (newPattern == 1) {
+                            path += 'S';
+                            driver.forward(forwardSpeed);
+                        } else {
+                            path += 'R';
+                            driver.turnRight(turnSpeed);
+                            waitTill90();
+                        }
+                        break;
+
+                    case 'T':
+                        path += 'L';
+                        showLight('B');
+                        driver.turnLeft(turnSpeed);
+                        waitTill90();
+                        break;
+
+                    default:
+                        path += 'B';
+                        showLight('B');
+                        driver.turnLeft(turnSpeed);
+                        waitTill180();
+                        break;
+                }
             }
             driver.stop();
         }
@@ -147,5 +191,16 @@ void setup() {
 }
 
 void loop() {
+    BotLoop();
+
+    Serial.println(path);
+    path = mazeShort(path);
+    secondRun = true;
+    Serial.println(path);
+
+    waitTillButton();
+    driver.forward(80);
+    delay(500);
+
     BotLoop();
 }

@@ -43,7 +43,7 @@ void SensorPanel::read() {
 
 void SensorPanel::updatePattern() {
     SensorPanel::isMiddle = false;
-    for (int i = 7; i <= 8; i++) {
+    for (int i = 6; i <= 9; i++) {
         if (SensorPanel::panelReading[i] == 1) {
             SensorPanel::isMiddle = true;
         }
