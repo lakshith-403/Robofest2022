@@ -40,7 +40,7 @@ inline void waitTill90() {
     double a = getAngle();
     double b = a;
 
-    while (abs(a - b) <= 120) {
+    while (abs(a - b) <= 140) {
         b = getAngle();
     }
     driver.stop();
@@ -50,7 +50,7 @@ inline void waitTill180() {
     double a = getAngle();
     double b = a;
 
-    while (abs(a - b) <= 240) {
+    while (abs(a - b) <= 260) {
         b = getAngle();
     }
     driver.stop();
@@ -90,7 +90,7 @@ void BotLoop() {
             bool right = pattern == 'R';
             bool t = pattern == 'T';
             driver.forward(forwardSpeed);
-            for (int i = 0; i < 70; i++) {
+            for (int i = 0; i < 45; i++) {
                 qtr.read();
                 if (qtr.pattern == 'L') {
                     left = true;
@@ -203,4 +203,6 @@ void loop() {
     delay(500);
 
     BotLoop();
+    driver.stop();
+    waitTillButton();
 }

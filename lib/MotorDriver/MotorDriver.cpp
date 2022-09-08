@@ -5,8 +5,8 @@
 #include "MotorDriver.h"
 #include <Arduino.h>
 
-const int baseSpeed = 80;
-const int maxSpeed = 120;
+const int baseSpeed = 100;
+const int maxSpeed = 130;
 
 void MotorDriver::init(int* leftPins, int* rightPins) {
     leftPWM = leftPins[0];
@@ -43,7 +43,7 @@ void MotorDriver::stop() {
 
     analogWrite(leftPWM, 255);
     analogWrite(rightPWM, 255);
-    delay(300);
+    delay(100);
 }
 
 void MotorDriver::backward(int speed) {
