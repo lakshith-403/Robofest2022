@@ -19,17 +19,6 @@ const int buzzerPin = 12;
 const int turnSpeed = 120;
 const int forwardSpeed = 60;
 
-String path = "";
-bool secondRun = false;
-int pathIndex = 0;
-
-inline void turnDelay() {
-    delay(300);
-}
-
-inline void forwardDelay() {
-    delay(150);
-}
 
 inline void waitTillButton() {
     int reading = digitalRead(switchPin);
