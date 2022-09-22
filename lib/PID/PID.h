@@ -27,3 +27,24 @@ int pid(int error) {
 
     return correction;
 }
+
+const double GP = 3;
+const double GI = 0;
+const double GD = 1;
+
+double totalGyroError = 0.0;
+double prevGyroError = 0.0;
+
+int gyroPid(double error) {
+    totalGyroError += error;
+
+    double p = error * GP;
+    double i = totalGyroError * GI;
+    double d = (error - prevGyroError) * GD;
+
+    prevGyroError = error;
+
+    double correction = p + i + d;
+
+    return (int)correction;
+}

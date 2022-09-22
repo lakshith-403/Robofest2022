@@ -108,3 +108,29 @@ void MotorDriver::applyPID(int correction) {
 
     forward(leftSpeed, rightSpeed);
 }
+
+
+void MotorDriver::applyGyroPID(int correction) {
+    int gyroBase = 60;
+    int gyroMax = 110;
+    int leftSpeed = gyroBase + correction;
+    int rightSpeed = gyroBase - correction;
+
+    if (leftSpeed < 0) {
+        leftSpeed = 0;
+    }
+
+    if (rightSpeed < 0) {
+        rightSpeed = 0;
+    }
+
+    if (leftSpeed >= gyroMax) {
+        leftSpeed = gyroMax;
+    }
+
+    if (rightSpeed >= gyroMax) {
+        rightSpeed = gyroMax;
+    }
+
+    forward(leftSpeed, rightSpeed);
+}

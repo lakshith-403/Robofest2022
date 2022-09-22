@@ -60,8 +60,8 @@ void BotSetup() {
     showLight('R');
     setupGyro();
     showLight('B');
-    driver.forward(80);
-    delay(500);
+//    driver.forward(80); todo
+//    delay(500);
 }
 
 void BotLoop() {
@@ -79,6 +79,8 @@ void BotLoop() {
             bool right = pattern == 'R';
             bool t = pattern == 'T';
             driver.forward(forwardSpeed);
+
+            int tCount = 0;
             for (int i = 0; i < 30; i++) {
                 qtr.read();
                 if (qtr.pattern == 'L') {
@@ -87,9 +89,14 @@ void BotLoop() {
                     right = true;
                 } else if (qtr.pattern == 'T') {
                     t = true;
+                    tCount++;
                 }
             }
-            if (t || (left && right)) {
+
+            if (tCount >= 15) { //black
+                driver.stop();
+                while(true);
+            } else if (t || (left && right)) {
                 pattern = 'T';
             } else if (left) {
                 pattern = 'L';
@@ -148,6 +155,19 @@ void setup() {
 }
 
 void loop() {
-    BotLoop();
-    waitTillButton();
+//    BotLoop();
+//    waitTillButton();
+    double initTheta = getAngle();
+    while (true) {
+        double theta = getAngle();
+        double error = initTheta - theta;
+
+        int correction = gyroPid(error);
+        driver.applyGyroPID(correction * -1);
+        delay(1);
+
+        Serial.print(error);
+        Serial.print('\t');
+        Serial.println(correction);
+    }
 }

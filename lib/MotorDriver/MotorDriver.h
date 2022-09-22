@@ -25,6 +25,8 @@ public:
 
     void applyPID(int correction);
 
+    void applyGyroPID(int correction);
+
 private:
     int leftPWM;
     int rightPWM;
