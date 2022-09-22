@@ -111,7 +111,6 @@ void BotLoop() {
 
             switch (pattern) {
                 case 'L':
-                    path += 'L';
                     showLight('R');
                     driver.turnLeft(turnSpeed);
                     waitTill90();
@@ -120,24 +119,20 @@ void BotLoop() {
                 case 'R':
                     showLight('G');
                     if (newPattern == 1) {
-                        path += 'S';
                         driver.forward(forwardSpeed);
                     } else {
-                        path += 'R';
                         driver.turnRight(turnSpeed);
                         waitTill90();
                     }
                     break;
 
                 case 'T':
-                    path += 'L';
                     showLight('B');
                     driver.turnLeft(turnSpeed);
                     waitTill90();
                     break;
 
                 default:
-                    path += 'B';
                     showLight('B');
                     driver.turnLeft(turnSpeed);
                     waitTill180();
