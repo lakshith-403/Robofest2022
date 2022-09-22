@@ -27,6 +27,10 @@ public:
 
     void applyGyroPID(int correction);
 
+    void reverseRight(int speed);
+
+    void reverseLeft(int speed);
+
 private:
     int leftPWM;
     int rightPWM;

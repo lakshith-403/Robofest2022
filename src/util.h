@@ -8,13 +8,12 @@
 #include "Arduino.h"
 #include "SensorPanel.h"
 #include "PID.h"
-#include "MotorDriver.h"
 
 #endif //ROBOFEST2022_UTIL_H
 
-const int  redPin =19;
-const int  bluePin =50;
-const int  greenPin =48;
+const int redPin = 19;
+const int bluePin = 50;
+const int greenPin = 48;
 
 
 const String mappings[2][6] = {{"LBL", "LBS", "RBL", "SBL", "SBS", "LBR"},
@@ -31,8 +30,8 @@ String mazeShort(String maze) {
     return maze;
 }
 
-void printReadings(const SensorPanel& qtr) {
-    for (unsigned int i : qtr.panelReading) {
+void printReadings(const SensorPanel &qtr) {
+    for (unsigned int i: qtr.panelReading) {
         Serial.print(i);
         Serial.print('\t');
     }
@@ -44,43 +43,28 @@ void printReadings(const SensorPanel& qtr) {
 
     delay(250);
 }
-void straighten(){
-    int reveseSpeed = 60;
-    int leftSensor = 0,rightSensor = 15;
-    qtr.read();
-    while(!qtr.panelReading[leftSensor]){  
-        reverseLeft(reverseSpeed);
-        qtr.read();
-    }  
-    stop();
-    qtr.read();
-    while(!qtr.panelReading[rightSensor]){  
-        reverseRight(reverseSpeed);
-        qtr.read();
-    }  
-    stop();
-}
-void showLight(char color){
+
+void showLight(char color) {
     switch (color) {
         case 'R':
-            digitalWrite(redPin,1);
-            digitalWrite(greenPin,0);
-            digitalWrite(bluePin,0);
+            digitalWrite(redPin, 1);
+            digitalWrite(greenPin, 0);
+            digitalWrite(bluePin, 0);
             break;
         case 'G':
-            digitalWrite(redPin,0);
-            digitalWrite(greenPin,1);
-            digitalWrite(bluePin,0);
+            digitalWrite(redPin, 0);
+            digitalWrite(greenPin, 1);
+            digitalWrite(bluePin, 0);
             break;
         case 'B':
-            digitalWrite(redPin,0);
-            digitalWrite(greenPin,0);
-            digitalWrite(bluePin,1);
+            digitalWrite(redPin, 0);
+            digitalWrite(greenPin, 0);
+            digitalWrite(bluePin, 1);
             break;
         default:
-            digitalWrite(redPin,0);
-            digitalWrite(greenPin,0);
-            digitalWrite(bluePin,0);
+            digitalWrite(redPin, 0);
+            digitalWrite(greenPin, 0);
+            digitalWrite(bluePin, 0);
             break;
     }
 }

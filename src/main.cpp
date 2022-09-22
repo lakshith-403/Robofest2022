@@ -25,7 +25,7 @@ inline void waitTillButton() {
     while (digitalRead(switchPin) == reading) {}
 }
 
-inline void waitTill90(){
+inline void waitTill90() {
     double a = getAngle();
     double b = a;
 
@@ -64,6 +64,83 @@ void BotSetup() {
 //    delay(500);
 }
 
+void straightenEnd() {
+    int reverseSpeed = 70;
+    int leftSensor = 0, rightSensor = 15;
+    qtr.read();
+    const int limit = 100;
+    while (!qtr.panelReading[leftSensor] || !qtr.panelReading[rightSensor]) {
+        int count = 0;
+        while (!qtr.panelReading[leftSensor]) {
+            driver.reverseLeft(reverseSpeed);
+            qtr.read();
+            if (count++ >= limit) {
+                break;
+            }
+        }
+        count = 0;
+        driver.stop();
+        qtr.read();
+        while (!qtr.panelReading[rightSensor]) {
+            driver.reverseRight(reverseSpeed);
+            qtr.read();
+            if (count++ >= limit) {
+                break;
+            }
+        }
+        driver.stop();
+    }
+}
+
+void straightenStart() {
+    int reverseSpeed = 70;
+    int leftSensor = 0, rightSensor = 15;
+    qtr.read();
+    const int limit = 100;
+    while (qtr.panelReading[leftSensor] || qtr.panelReading[rightSensor]) {
+        Serial.print(qtr.panelReading[leftSensor]);
+        Serial.print('\t');
+        Serial.println(qtr.panelReading[rightSensor]);
+        int count = 0;
+        qtr.read();
+        while (qtr.panelReading[leftSensor]) {
+            driver.reverseLeft(reverseSpeed);
+            qtr.read();
+            if (count++ >= limit) {
+                break;
+            }
+        }
+        driver.stop();
+
+        count = 0;
+        qtr.read();
+        while (qtr.panelReading[rightSensor]) {
+            driver.reverseRight(reverseSpeed);
+            qtr.read();
+            if (count++ >= limit) {
+                break;
+            }
+        }
+        driver.stop();
+    }
+}
+
+void goThroughBox() {
+    double initTheta = getAngle();
+    qtr.read();
+    int count = 0;
+    int limit = 15;
+    while (qtr.panelReading[0] || qtr.panelReading[15] || count++ < limit) {
+        qtr.read();
+        double theta = getAngle();
+        double error = initTheta - theta;
+
+        int correction = gyroPid(error);
+        driver.applyGyroPID(correction * -1);
+        delay(1);
+    }
+}
+
 void BotLoop() {
     while (true) {
         qtr.read();
@@ -93,10 +170,7 @@ void BotLoop() {
                 }
             }
 
-            if (tCount >= 15) { //black
-                driver.stop();
-                while(true);
-            } else if (t || (left && right)) {
+            if (t || (left && right)) {
                 pattern = 'T';
             } else if (left) {
                 pattern = 'L';
@@ -114,6 +188,25 @@ void BotLoop() {
                 driver.stop();
                 showLight('R');
                 return;
+            }
+
+            if (tCount >= 10) { //black
+                driver.stop();
+
+                qtr.read();
+                if (qtr.pattern == 'T') {
+                    delay(100);
+                    straightenStart();
+                    driver.stop();
+                    goThroughBox();
+                    driver.stop();
+                    straightenEnd();
+                    driver.stop();
+                    delay(1000);
+                    driver.forward(60);
+                    delay(300);
+                    continue;
+                }
             }
 
             switch (pattern) {
@@ -155,19 +248,5 @@ void setup() {
 }
 
 void loop() {
-//    BotLoop();
-//    waitTillButton();
-    double initTheta = getAngle();
-    while (true) {
-        double theta = getAngle();
-        double error = initTheta - theta;
-
-        int correction = gyroPid(error);
-        driver.applyGyroPID(correction * -1);
-        delay(1);
-
-        Serial.print(error);
-        Serial.print('\t');
-        Serial.println(correction);
-    }
+    BotLoop();
 }
