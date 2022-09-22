@@ -16,7 +16,7 @@ const int lightPins[] = {19, 50, 48};
 const int switchPin = 18;
 const int buzzerPin = 12;
 
-const int turnSpeed = 80;
+const int turnSpeed = 120;
 const int forwardSpeed = 60;
 
 String path = "";
@@ -36,11 +36,11 @@ inline void waitTillButton() {
     while (digitalRead(switchPin) == reading) {}
 }
 
-inline void waitTill90() {
+inline void waitTill90(){
     double a = getAngle();
     double b = a;
 
-    while (abs(a - b) <= 140) {
+    while (abs(a - b) <= 90) {
         b = getAngle();
     }
     driver.stop();
@@ -50,7 +50,7 @@ inline void waitTill180() {
     double a = getAngle();
     double b = a;
 
-    while (abs(a - b) <= 260) {
+    while (abs(a - b) <= 180) {
         b = getAngle();
     }
     driver.stop();
@@ -90,7 +90,7 @@ void BotLoop() {
             bool right = pattern == 'R';
             bool t = pattern == 'T';
             driver.forward(forwardSpeed);
-            for (int i = 0; i < 45; i++) {
+            for (int i = 0; i < 30; i++) {
                 qtr.read();
                 if (qtr.pattern == 'L') {
                     left = true;
@@ -120,66 +120,39 @@ void BotLoop() {
                 return;
             }
 
-            if (secondRun) {
-                char turn = path[pathIndex++];
-                switch (turn) {
-                    case 'L':
-                        showLight('R');
-                        driver.turnLeft(turnSpeed);
-                        waitTill90();
-                        break;
+            switch (pattern) {
+                case 'L':
+                    path += 'L';
+                    showLight('R');
+                    driver.turnLeft(turnSpeed);
+                    waitTill90();
+                    break;
 
-                    case 'R':
-                        showLight('G');
+                case 'R':
+                    showLight('G');
+                    if (newPattern == 1) {
+                        path += 'S';
+                        driver.forward(forwardSpeed);
+                    } else {
+                        path += 'R';
                         driver.turnRight(turnSpeed);
                         waitTill90();
-                        break;
+                    }
+                    break;
 
-                    case 'S':
-                        showLight('B');
-                        break;
+                case 'T':
+                    path += 'L';
+                    showLight('B');
+                    driver.turnLeft(turnSpeed);
+                    waitTill90();
+                    break;
 
-                    default:
-                        showLight('B');
-                        driver.turnLeft(turnSpeed);
-                        waitTill180();
-                        break;
-                }
-            } else {
-                switch (pattern) {
-                    case 'L':
-                        path += 'L';
-                        showLight('R');
-                        driver.turnLeft(turnSpeed);
-                        waitTill90();
-                        break;
-
-                    case 'R':
-                        showLight('G');
-                        if (newPattern == 1) {
-                            path += 'S';
-                            driver.forward(forwardSpeed);
-                        } else {
-                            path += 'R';
-                            driver.turnRight(turnSpeed);
-                            waitTill90();
-                        }
-                        break;
-
-                    case 'T':
-                        path += 'L';
-                        showLight('B');
-                        driver.turnLeft(turnSpeed);
-                        waitTill90();
-                        break;
-
-                    default:
-                        path += 'B';
-                        showLight('B');
-                        driver.turnLeft(turnSpeed);
-                        waitTill180();
-                        break;
-                }
+                default:
+                    path += 'B';
+                    showLight('B');
+                    driver.turnLeft(turnSpeed);
+                    waitTill180();
+                    break;
             }
             driver.stop();
         }
@@ -192,17 +165,5 @@ void setup() {
 
 void loop() {
     BotLoop();
-
-    Serial.println(path);
-    path = mazeShort(path);
-    secondRun = true;
-    Serial.println(path);
-
-    waitTillButton();
-    driver.forward(80);
-    delay(500);
-
-    BotLoop();
-    driver.stop();
     waitTillButton();
 }
