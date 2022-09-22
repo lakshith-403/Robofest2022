@@ -8,6 +8,7 @@
 #include "Arduino.h"
 #include "SensorPanel.h"
 #include "PID.h"
+#include "MotorDriver.h"
 
 #endif //ROBOFEST2022_UTIL_H
 
@@ -43,7 +44,22 @@ void printReadings(const SensorPanel& qtr) {
 
     delay(250);
 }
-
+void straighten(){
+    int reveseSpeed = 60;
+    int leftSensor = 0,rightSensor = 15;
+    qtr.read();
+    while(!qtr.panelReading[leftSensor]){  
+        reverseLeft(reverseSpeed);
+        qtr.read();
+    }  
+    stop();
+    qtr.read();
+    while(!qtr.panelReading[rightSensor]){  
+        reverseRight(reverseSpeed);
+        qtr.read();
+    }  
+    stop();
+}
 void showLight(char color){
     switch (color) {
         case 'R':

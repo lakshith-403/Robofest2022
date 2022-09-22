@@ -75,6 +75,24 @@ void MotorDriver::turnRight(int speed) {
     analogWrite(leftPWM, speed);
     analogWrite(rightPWM, speed);
 }
+void MotorDriver::reverseRight(int speed) {
+    digitalWrite(leftDirection[0], LOW);
+    digitalWrite(leftDirection[1], LOW);
+    digitalWrite(rightDirection[0], LOW);
+    digitalWrite(rightDirection[1], HIGH);
+
+    analogWrite(leftPWM, speed);
+    analogWrite(rightPWM, speed);
+}
+void MotorDriver::reverseLeft(int speed) {
+    digitalWrite(leftDirection[0], LOW);
+    digitalWrite(leftDirection[1], HIGH);
+    digitalWrite(rightDirection[0], LOW);
+    digitalWrite(rightDirection[1], LOW);
+
+    analogWrite(leftPWM, speed);
+    analogWrite(rightPWM, speed);
+}
 
 void MotorDriver::forward(int leftSpeed, int rightSpeed) {
     digitalWrite(leftDirection[0], HIGH);
