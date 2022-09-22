@@ -43,7 +43,7 @@ void MotorDriver::stop() {
 
     analogWrite(leftPWM, 255);
     analogWrite(rightPWM, 255);
-    delay(100);
+    delay(50);
 }
 
 void MotorDriver::backward(int speed) {
