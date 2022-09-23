@@ -2,6 +2,7 @@
 #include "../lib/MotorDriver/MotorDriver.h"
 #include "../lib/Gyro/Gyro.h"
 #include "util.h"
+#include <Servo.h>
 
 SensorPanel qtr(const_cast<uint8_t *>((const uint8_t[]) {24, 22, 23, 25, 27, 29, 31,
                                                          33, 35, 37, 39, 41, 43, 45, 47, 49}));
@@ -19,6 +20,10 @@ const int buzzerPin = 12;
 const int turnSpeed = 120;
 const int forwardSpeed = 60;
 
+Servo xServo;
+Servo yServo;
+
+bool foundBox = false;
 
 inline void waitTillButton() {
     int reading = digitalRead(switchPin);
@@ -48,6 +53,12 @@ inline void waitTill180() {
 void BotSetup() {
     pinMode(switchPin, OUTPUT);
 
+    xServo.attach(15);
+    yServo.attach(14);
+
+    xServo.write(85);
+    yServo.write(180);
+
     for (int lightPin: lightPins) {
         pinMode(lightPin, OUTPUT);
     }
@@ -60,8 +71,8 @@ void BotSetup() {
     showLight('R');
     setupGyro();
     showLight('B');
-//    driver.forward(80); todo
-//    delay(500);
+    driver.forward(80);
+    delay(500);
 }
 
 void straightenEnd() {
@@ -141,6 +152,39 @@ void goThroughBox() {
     }
 }
 
+void rotateServo(Servo &s, int start, int end) {
+    if (start < end) {
+        for (int i = start; i <= end; i++) {
+            s.write(i);
+            delay(15);
+        }
+        delay(500);
+    } else {
+        for (int i = start; i >= end; i--) {
+            s.write(i);
+            delay(15);
+        }
+        delay(500);
+    }
+}
+
+void liftBox() {
+    // x axis 175 <-> 85 <-> 0
+    //y axis 90 <-> 180
+    rotateServo(xServo, 85, 175);
+    rotateServo(yServo, 180, 70);
+
+    rotateServo(yServo, 70, 180);
+    rotateServo(xServo, 175, 85);
+}
+
+void placeBox() {
+    // x axis 175 <-> 85 <-> 0
+    //y axis 90 <-> 180
+    rotateServo(xServo, 85, 0);
+    rotateServo(yServo, 180, 70);
+}
+
 void BotLoop() {
     while (true) {
         qtr.read();
@@ -184,17 +228,25 @@ void BotLoop() {
             qtr.read();
             char newPattern = qtr.pattern;
 
-            if (qtr.isEnd) {
-                driver.stop();
-                showLight('R');
-                return;
-            }
-
             if (tCount >= 10) { //black
                 driver.stop();
-
                 qtr.read();
                 if (qtr.pattern == 'T') {
+                    if (foundBox) {
+                        driver.stop();
+                        showLight('R');
+                        straightenStart();
+                        driver.stop();
+                        goThroughBox();
+                        driver.stop();
+                        straightenEnd();
+                        driver.stop();
+                        placeBox();
+                        return;
+                    }
+
+                    foundBox = true;
+
                     delay(100);
                     straightenStart();
                     driver.stop();
@@ -202,7 +254,7 @@ void BotLoop() {
                     driver.stop();
                     straightenEnd();
                     driver.stop();
-                    delay(1000);
+                    liftBox();
                     driver.forward(60);
                     delay(300);
                     continue;
@@ -249,4 +301,5 @@ void setup() {
 
 void loop() {
     BotLoop();
+    waitTillButton();
 }
