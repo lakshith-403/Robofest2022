@@ -5,8 +5,8 @@
 #include "MotorDriver.h"
 #include <Arduino.h>
 
-const int baseSpeed = 100;
-const int maxSpeed = 130;
+const int baseSpeed = 80;
+const int maxSpeed = 110;
 
 void MotorDriver::init(int* leftPins, int* rightPins) {
     leftPWM = leftPins[0];

@@ -18,12 +18,14 @@ const int switchPin = 18;
 const int buzzerPin = 12;
 
 const int turnSpeed = 120;
-const int forwardSpeed = 60;
+const int forwardSpeed = 80;
 
 Servo xServo;
 Servo yServo;
 
 bool foundBox = false;
+
+const int forwardReadings = 40;
 
 inline void waitTillButton() {
     int reading = digitalRead(switchPin);
@@ -59,6 +61,9 @@ void BotSetup() {
     xServo.write(85);
     yServo.write(180);
 
+    xServo.detach();
+    yServo.detach();
+
     for (int lightPin: lightPins) {
         pinMode(lightPin, OUTPUT);
     }
@@ -69,6 +74,7 @@ void BotSetup() {
     Serial.println("Calibrating");
     qtr.calibrate(10);
     showLight('R');
+    waitTillButton();
     setupGyro();
     showLight('B');
     driver.forward(80);
@@ -109,9 +115,6 @@ void straightenStart() {
     qtr.read();
     const int limit = 100;
     while (qtr.panelReading[leftSensor] || qtr.panelReading[rightSensor]) {
-        Serial.print(qtr.panelReading[leftSensor]);
-        Serial.print('\t');
-        Serial.println(qtr.panelReading[rightSensor]);
         int count = 0;
         qtr.read();
         while (qtr.panelReading[leftSensor]) {
@@ -140,7 +143,7 @@ void goThroughBox() {
     double initTheta = getAngle();
     qtr.read();
     int count = 0;
-    int limit = 15;
+    int limit = 50;
     while (qtr.panelReading[0] || qtr.panelReading[15] || count++ < limit) {
         qtr.read();
         double theta = getAngle();
@@ -156,7 +159,7 @@ void rotateServo(Servo &s, int start, int end) {
     if (start < end) {
         for (int i = start; i <= end; i++) {
             s.write(i);
-            delay(15);
+            delay(5);
         }
         delay(500);
     } else {
@@ -171,18 +174,26 @@ void rotateServo(Servo &s, int start, int end) {
 void liftBox() {
     // x axis 175 <-> 85 <-> 0
     //y axis 90 <-> 180
-    rotateServo(xServo, 85, 175);
-    rotateServo(yServo, 180, 70);
+    xServo.attach(15);
+    yServo.attach(14);
 
-    rotateServo(yServo, 70, 180);
+    rotateServo(xServo, 85, 175);
+    rotateServo(yServo, 180, 50);
+
+    rotateServo(yServo, 50, 180);
     rotateServo(xServo, 175, 85);
+
+    xServo.detach();
+    yServo.detach();
 }
 
 void placeBox() {
+    xServo.attach(15);
+    yServo.attach(14);
     // x axis 175 <-> 85 <-> 0
     //y axis 90 <-> 180
     rotateServo(xServo, 85, 0);
-    rotateServo(yServo, 180, 70);
+    rotateServo(yServo, 180, 50);
 }
 
 void BotLoop() {
@@ -202,7 +213,7 @@ void BotLoop() {
             driver.forward(forwardSpeed);
 
             int tCount = 0;
-            for (int i = 0; i < 30; i++) {
+            for (int i = 0; i < forwardReadings; i++) {
                 qtr.read();
                 if (qtr.pattern == 'L') {
                     left = true;
@@ -228,7 +239,7 @@ void BotLoop() {
             qtr.read();
             char newPattern = qtr.pattern;
 
-            if (tCount >= 10) { //black
+            if (tCount >= forwardReadings / 3) { //black
                 driver.stop();
                 qtr.read();
                 if (qtr.pattern == 'T') {
@@ -255,8 +266,8 @@ void BotLoop() {
                     straightenEnd();
                     driver.stop();
                     liftBox();
-                    driver.forward(60);
-                    delay(300);
+                    driver.forward(forwardSpeed);
+                    delay(forwardReadings * 10);
                     continue;
                 }
             }
